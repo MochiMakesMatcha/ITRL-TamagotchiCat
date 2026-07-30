@@ -154,7 +154,7 @@
             afterHappiness+=attention;
             afterHappiness+=energy;
             updateRepresentation();
-            if(beforeHappiness > afterHappiness){
+            if(beforeHappiness < afterHappiness){
                 table[state][SelectedAction]+=1;
             }else{
                 table[state][SelectedAction]-=2;
