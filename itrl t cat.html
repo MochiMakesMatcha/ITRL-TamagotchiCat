@@ -1,5 +1,5 @@
 <html>
-<!-- Copyright © 2025 MochiMakesMatcha. Licensed under CC BY-SA found at https://creativecommons.org/licenses/by-sa/4.0/ -->
+<!-- Copyright Â© 2025 MochiMakesMatcha. Licensed under CC BY-SA found at https://creativecommons.org/licenses/by-sa/4.0/ -->
     <head>
     </head>
     <body>
@@ -154,11 +154,7 @@
             afterHappiness+=attention;
             afterHappiness+=energy;
             updateRepresentation();
-            if(beforeHappiness < afterHappiness){
-                table[state][SelectedAction]+=1;
-            }else{
-                table[state][SelectedAction]-=2;
-            };
+            table[state][SelectedAction]+=afterHappiness-beforeHappiness;
         };
 
         function feed(){
