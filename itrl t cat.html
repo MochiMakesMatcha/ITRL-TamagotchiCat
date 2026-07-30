@@ -1,0 +1,212 @@
+<html>
+<!-- Copyright © 2025 MochiMakesMatcha. Licensed under CC BY-SA found at https://creativecommons.org/licenses/by-sa/4.0/ -->
+    <head>
+    </head>
+    <body>
+        Hunger: <span id="hungerBar">oooooooooo</span> <br>
+        Cleanliness: <span id="cleanBar">oooooooooo</span> <br>
+        Attention: <span id="attentionBar">oooooooooo</span> <br>
+        Energy: <span id="energyBar">oooooooooo</span> <br>
+        Cat is <span id="CatActionTicker">Idle</span> <p>
+        <button onclick="feed()">Feed</button><button onclick="giveAttention()">Give Attention</button>
+    </body>
+    <script>
+        var TickSpeed=2500;
+        window.setInterval(catTick, TickSpeed);
+        var hunger=100;
+        var clean=100;
+        var attention=100;
+        var energy=100;
+        var beforeHappiness=0;
+        var afterHappiness=0;
+        var representation=0;
+        var state;
+        var table={};
+        var basicActions={Meow:"N", Clean:"N", Run:"N", Purr:"N", Sleep:"N", Idle:"N"};
+        var ActionIndex=0;
+        var weights;
+        var actionBag=[];
+        var actionIndex;
+        var SelectedAction="meow";
+        var personality=[];
+        personality.push(getRandomInt(25, 75)) //set hunger personality value starts getting hungry
+        personality.push(getRandomInt(10, 90)) //set cleanliness personality value starts needing to clean
+        personality.push(getRandomInt(0, 90))  // set attention personality value starts needing attention
+        personality.push(getRandomInt(25, 90))
+
+        function catTick(){
+            hunger-=1;
+            attention-=2
+            clean-=1;
+            updateRepresentation();
+            state=""                                                                //get current state
+            if(hunger < personality[0]){
+                state+="X"
+            }else{
+                state+="V"
+            }
+
+            if(clean < personality[1]){
+                state+="X"
+            }else{
+                state+="V"
+            }
+
+            if(attention < personality[2]){
+                state+="X"
+            }else{
+                state+="V"
+            }
+
+            if(energy < personality[3]){
+                state+="X"
+            }else{
+                state+="V"
+            }
+            beforeHappiness=0;
+            beforeHappiness+=hunger;
+            beforeHappiness+=clean;
+            beforeHappiness+=attention;
+            beforeHappiness+=energy;
+            if(table[state]){                                                       // if this state does exist
+                if(Object.values(table[state]).some((element)=>element=="N")){      // if the state's options are not fully explored
+                    ActionIndex = getRandomInt(0, Object.keys(table[state]).length);   // get random move index
+                    SelectedAction=Object.keys(table[state])[ActionIndex];          // get random move from index
+                    table[state][SelectedAction]=0;                                 // clear chosen random move from unexplored status
+                    CatAction(SelectedAction);                                      // do the random move
+                }else{                                                              // if this state's options are fully explored
+                    weights=Object.values(table[state])                             // get choice weights
+                    while(Math.min(...weights)<1){                                  // normalize weights; while the minimum value in the array of weights is less than one
+                        weights=weights.map((element)=>element+1);                  // add one to each element
+                    };                                                              // finsihed normalizing
+                    actionBag=[];                                                   // clear the bag of actions
+                    weights.forEach((value, index)=>{                               // for each weight in array
+                        for(var i=0; i<Number(value); i++){                         // while i is less than the value of each weight, with i incrementing
+                            actionBag.push(Object.keys(table[state])[index]);       // add the correspoding action to the draw/bag
+                        };
+                    });
+                    actionIndex=getRandomInt(0, actionBag.length);                     // draw a random action's index from the bag
+                    SelectedAction=actionBag[actionIndex];                          // get action from its index
+                    CatAction(SelectedAction);                                      // do that move
+
+
+                };
+            }else if(!table[state]){                                           // if this state doesn't exist in table
+                table[state]={};                                               // create this state in table
+                table[state]=Object.assign({},basicActions);                   // add basic actions
+                actionIndex = getRandomInt(0, Object.keys(table[state]).length);  // get random move index
+                SelectedAction=Object.keys(table[state])[actionIndex];         // get random move from index
+                table[state][SelectedAction]=0;                                // clear chosen random move from unexplored status
+                CatAction(SelectedAction);                                     // do the random move
+            };
+
+        };
+
+        function getRandomInt(min, max){ return Math.floor(Math.random() * (max - min)) + min; }
+
+        function CatAction(Action){
+            switch(Action){
+                case "Meow":
+                    document.getElementById("CatActionTicker").textContent="Meowing";
+                    break;
+                case "Clean":
+                    document.getElementById("CatActionTicker").textContent="Cleaning";
+                    if(clean < 50){
+                        clean += 50;
+                    }else{
+                        clean=100;
+                    };
+                    calculateHappiness();
+                    break;
+                case "Run":
+                    document.getElementById("CatActionTicker").textContent="Running";
+                    if(energy > 10){
+                        energy -= 10;
+                    }else{
+                        energy=0;
+                    };
+                    calculateHappiness();
+                    break;
+                case "Purr":
+                    document.getElementById("CatActionTicker").textContent="Purring";
+                    break;
+                case "Sleep":
+                    document.getElementById("CatActionTicker").textContent="Sleeping";
+                    if(energy < 71){
+                        energy+=30
+                    }else{
+                        energy = 100
+                    };
+                    calculateHappiness();
+                    break;
+                case "Idle":
+                    document.getElementById("CatActionTicker").textContent="Doing Noting";
+                    break;
+                case undefined:
+                    console.log("ok...")
+            };
+        };
+
+        function calculateHappiness(){
+            afterHappiness=0;
+            afterHappiness+=hunger;
+            afterHappiness+=clean;
+            afterHappiness+=attention;
+            afterHappiness+=energy;
+            updateRepresentation();
+            if(beforeHappiness > afterHappiness){
+                table[state][SelectedAction]+=1;
+            }else{
+                table[state][SelectedAction]-=2;
+            };
+        };
+
+        function feed(){
+            hunger=100;
+            calculateHappiness();
+        };
+
+        function giveAttention(){
+            attention=100;
+            calculateHappiness();
+        };
+
+        function updateRepresentation(){
+            representation=Math.round(hunger/10);
+            document.getElementById("hungerBar").textContent="";
+            for(var i=0; i<representation; i++){
+                document.getElementById("hungerBar").textContent+="O";
+            };
+            for(var i=0; i<(10-representation); i++){
+                document.getElementById("hungerBar").textContent+=".";
+            };
+
+            representation=Math.round(clean/10);
+            document.getElementById("cleanBar").textContent="";
+            for(var i=0; i<representation; i++){
+                document.getElementById("cleanBar").textContent+="O";
+            };
+            for(var i=0; i<(10-representation); i++){
+                document.getElementById("cleanBar").textContent+=".";
+            };
+
+            representation=Math.round(attention/10);
+            document.getElementById("attentionBar").textContent="";
+            for(var i=0; i<representation; i++){
+                document.getElementById("attentionBar").textContent+="O";
+            };
+            for(var i=0; i<(10-representation); i++){
+                document.getElementById("attentionBar").textContent+=".";
+            };
+
+            representation=Math.round(energy/10);
+            document.getElementById("energyBar").textContent="";
+            for(var i=0; i<representation; i++){
+                document.getElementById("energyBar").textContent+="O";
+            };
+            for(var i=0; i<(10-representation); i++){
+                document.getElementById("energyBar").textContent+=".";
+            };
+        };
+    </script>
+</html>
