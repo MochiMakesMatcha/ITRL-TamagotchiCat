@@ -1,5 +1,5 @@
 <html>
-<!-- Copyright Â© 2025 MochiMakesMatcha. Licensed under CC BY-SA found at https://creativecommons.org/licenses/by-sa/4.0/ -->
+<!-- Copyright © 2026 MochiMakesMatcha. Licensed under CC BY-SA found at https://creativecommons.org/licenses/by-sa/4.0/ -->
     <head>
     </head>
     <body>
@@ -29,45 +29,91 @@
         var actionIndex;
         var SelectedAction="meow";
         var personality=[];
-        personality.push(getRandomInt(25, 75)) //set hunger personality value starts getting hungry
-        personality.push(getRandomInt(10, 90)) //set cleanliness personality value starts needing to clean
-        personality.push(getRandomInt(0, 90))  // set attention personality value starts needing attention
-        personality.push(getRandomInt(25, 90))
+        personality.push(getRandomInt(25, 45)) //set hunger personality value starts getting hungry
+        personality.push(getRandomInt(10, 70)) //set cleanliness personality value starts needing to clean
+        personality.push(getRandomInt(0, 50))  // set attention personality value starts needing attention
+        personality.push(getRandomInt(25, 60)) // energy min
+        personality.push(getRandomInt(personality[0], 90)) //set hunger personality value full
+        personality.push(getRandomInt(personality[1], 90))
+        personality.push(getRandomInt(personality[2], 95))
+        personality.push(getRandomInt(personality[3], 75))
 
         function catTick(){
-            hunger-=1;
-            attention-=2
-            clean-=1;
+
+            if(hunger>1){
+                hunger-=1;
+            }else{
+                hunger=0;
+            };
+            if(attention>2){
+                attention-=2;
+            }else{
+                attention=0;
+            };
+            if(clean>1){
+                clean-=1;
+            }else{
+                clean=0;
+            };
             updateRepresentation();
             state=""                                                                //get current state
             if(hunger < personality[0]){
                 state+="X"
-            }else{
+            }else if(hunger <= personality[4]){
                 state+="V"
+            }else if(hunger > personality[4]){
+                state+="-"
             }
 
             if(clean < personality[1]){
                 state+="X"
-            }else{
+            }else if(clean <= personality[5]){
                 state+="V"
+            }else if(clean > personality[5]){
+                state+="-"
             }
 
             if(attention < personality[2]){
                 state+="X"
-            }else{
+            }else if(attention <= personality[6]){
                 state+="V"
+            }else if(attention > personality[6]){
+                state+="-"
             }
 
             if(energy < personality[3]){
                 state+="X"
-            }else{
+            }else if(energy <= personality[7]){
                 state+="V"
+            }else if(energy > personality[7]){
+                state+="-"
             }
+
             beforeHappiness=0;
-            beforeHappiness+=hunger;
-            beforeHappiness+=clean;
-            beforeHappiness+=attention;
-            beforeHappiness+=energy;
+            if(hunger > personality[4]){
+                beforeHappiness+=personality[4];
+            }else{
+                beforeHappiness+=hunger;
+            }
+
+            if(clean > personality[5]){
+                beforeHappiness+=personality[5];
+            }else{
+                beforeHappiness+=clean;
+            }
+
+            if(attention > personality[6]){
+                beforeHappiness+=personality[6];
+            }else{
+                beforeHappiness+=attention;
+            }
+
+            if(energy > personality[7]){
+                beforeHappiness+=personality[7];
+            }else{
+                beforeHappiness+=energy;
+            }
+
             if(table[state]){                                                       // if this state does exist
                 if(Object.values(table[state]).some((element)=>element=="N")){      // if the state's options are not fully explored
                     ActionIndex = getRandomInt(0, Object.keys(table[state]).length);   // get random move index
@@ -140,7 +186,7 @@
                     calculateHappiness();
                     break;
                 case "Idle":
-                    document.getElementById("CatActionTicker").textContent="Doing Noting";
+                    document.getElementById("CatActionTicker").textContent="Doing Nothing";
                     break;
                 case undefined:
                     console.log("ok...")
@@ -149,21 +195,50 @@
 
         function calculateHappiness(){
             afterHappiness=0;
-            afterHappiness+=hunger;
-            afterHappiness+=clean;
-            afterHappiness+=attention;
-            afterHappiness+=energy;
+            if(hunger > personality[4]){
+                afterHappiness+=personality[4];
+            }else{
+                afterHappiness+=hunger;
+            }
+
+            if(clean > personality[5]){
+                afterHappiness+=personality[5];
+            }else{
+                afterHappiness+=clean;
+            }
+
+            if(attention > personality[6]){
+                afterHappiness+=personality[6];
+            }else{
+                afterHappiness+=attention;
+            }
+
+            if(energy > personality[7]){
+                afterHappiness+=personality[7];
+            }else{
+                afterHappiness+=energy;
+            }
             updateRepresentation();
             table[state][SelectedAction]+=afterHappiness-beforeHappiness;
         };
 
         function feed(){
-            hunger=100;
+            if(hunger < 67){
+                hunger+=33;
+            }else{
+                hunger=100;
+            };
+            updateRepresentation();
             calculateHappiness();
         };
 
         function giveAttention(){
-            attention=100;
+            if(attention < 81){
+                attention+=20;
+            }else{
+                attention=100;
+            };
+            updateRepresentation();
             calculateHappiness();
         };
 
@@ -177,6 +252,14 @@
                 document.getElementById("hungerBar").textContent+=".";
             };
 
+            if(hunger < personality[0]){
+                document.getElementById("hungerBar").textContent+="X"
+            }else if(hunger <= personality[4]){
+                document.getElementById("hungerBar").textContent+="V"
+            }else if(hunger > personality[4]){
+                document.getElementById("hungerBar").textContent+="-"
+            }
+
             representation=Math.round(clean/10);
             document.getElementById("cleanBar").textContent="";
             for(var i=0; i<representation; i++){
@@ -185,6 +268,14 @@
             for(var i=0; i<(10-representation); i++){
                 document.getElementById("cleanBar").textContent+=".";
             };
+
+            if(clean < personality[1]){
+                document.getElementById("cleanBar").textContent+="X"
+            }else if(clean <= personality[5]){
+                document.getElementById("cleanBar").textContent+="V"
+            }else if(clean > personality[5]){
+                document.getElementById("cleanBar").textContent+="-"
+            }
 
             representation=Math.round(attention/10);
             document.getElementById("attentionBar").textContent="";
@@ -195,6 +286,14 @@
                 document.getElementById("attentionBar").textContent+=".";
             };
 
+            if(attention < personality[2]){
+                document.getElementById("attentionBar").textContent+="X"
+            }else if(attention <= personality[6]){
+                document.getElementById("attentionBar").textContent+="V"
+            }else if(attention > personality[6]){
+                document.getElementById("attentionBar").textContent+="-"
+            }
+
             representation=Math.round(energy/10);
             document.getElementById("energyBar").textContent="";
             for(var i=0; i<representation; i++){
@@ -203,6 +302,14 @@
             for(var i=0; i<(10-representation); i++){
                 document.getElementById("energyBar").textContent+=".";
             };
+
+            if(energy < personality[3]){
+                document.getElementById("energyBar").textContent+="X"
+            }else if(energy <= personality[7]){
+                document.getElementById("energyBar").textContent+="V"
+            }else if(energy > personality[7]){
+                document.getElementById("energyBar").textContent+="-"
+            }
         };
     </script>
 </html>
