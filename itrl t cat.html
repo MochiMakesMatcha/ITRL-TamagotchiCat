@@ -219,7 +219,7 @@
                 afterHappiness+=energy;
             }
             updateRepresentation();
-            table[state][SelectedAction]+=afterHappiness-beforeHappiness;
+            table[state][SelectedAction]=Math.max((table[state][SelectedAction]),(afterHappiness-beforeHappiness));
         };
 
         function feed(){
